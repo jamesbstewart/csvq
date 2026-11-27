@@ -1243,7 +1243,7 @@ func testAnalyticFunctionExecute(t *testing.T, fn AnalyticFunction, tests []anal
 			continue
 		}
 		if !reflect.DeepEqual(result, v.Result) {
-			t.Errorf("%s: result = %q, want %q", v.Name, result, v.Result)
+			t.Errorf("%s: result = %v, want %v", v.Name, result, v.Result)
 		}
 	}
 }

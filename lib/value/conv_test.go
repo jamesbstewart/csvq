@@ -166,13 +166,17 @@ func TestStrToTime(t *testing.T) {
 	}
 
 	s = "2006-01-02T15:04:05+08:00"
-	tm, _ = StrToTime(s, formats, location)
-	z, i := tm.Zone()
-	if z != "" {
-		t.Errorf("zone name shoud be empty")
+	tm, ok := StrToTime(s, formats, location)
+	if !ok {
+		t.Fatalf("failed to parse %q", s)
 	}
+	_, i := tm.Zone()
 	if i != 28800 {
-		t.Errorf("zone offset should be %d", 28800)
+		t.Errorf("zone offset = %d, want %d", i, 28800)
+	}
+	want := time.Date(2006, time.January, 2, 7, 4, 5, 0, time.UTC)
+	if !tm.Equal(want) {
+		t.Errorf("parsed time = %s, want %s", tm, want)
 	}
 }
 

@@ -1314,7 +1314,7 @@ func TestProcessor_IfStmt(t *testing.T) {
 			continue
 		}
 		if flow != v.ResultFlow {
-			t.Errorf("%s: result flow = %q, want %q", v.Name, flow, v.ResultFlow)
+			t.Errorf("%s: result flow = %v, want %v", v.Name, flow, v.ResultFlow)
 		}
 		if !reflect.DeepEqual(proc.returnVal, v.ReturnValue) {
 			t.Errorf("%s: return = %t, want %t", v.Name, proc.returnVal, v.ReturnValue)
@@ -1490,7 +1490,7 @@ func TestProcessor_Case(t *testing.T) {
 			continue
 		}
 		if flow != v.ResultFlow {
-			t.Errorf("%s: result flow = %q, want %q", v.Name, flow, v.ResultFlow)
+			t.Errorf("%s: result flow = %v, want %v", v.Name, flow, v.ResultFlow)
 		}
 		if log != v.Result {
 			t.Errorf("%s: result = %q, want %q", v.Name, log, v.Result)
@@ -1769,7 +1769,7 @@ func TestProcessor_While(t *testing.T) {
 			continue
 		}
 		if flow != v.ResultFlow {
-			t.Errorf("%s: result flow = %q, want %q", v.Name, flow, v.ResultFlow)
+			t.Errorf("%s: result flow = %v, want %v", v.Name, flow, v.ResultFlow)
 		}
 		if !reflect.DeepEqual(proc.returnVal, v.ReturnValue) {
 			t.Errorf("%s: return = %t, want %t", v.Name, proc.returnVal, v.ReturnValue)
@@ -2007,7 +2007,7 @@ func TestProcessor_WhileInCursor(t *testing.T) {
 			continue
 		}
 		if flow != v.ResultFlow {
-			t.Errorf("%s: result flow = %q, want %q", v.Name, flow, v.ResultFlow)
+			t.Errorf("%s: result flow = %v, want %v", v.Name, flow, v.ResultFlow)
 		}
 		if !reflect.DeepEqual(proc.returnVal, v.ReturnValue) {
 			t.Errorf("%s: return = %t, want %t", v.Name, proc.returnVal, v.ReturnValue)
