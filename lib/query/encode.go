@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mithrandie/csvq/lib/json"
-	"github.com/mithrandie/csvq/lib/option"
-	"github.com/mithrandie/csvq/lib/value"
+	"github.com/jamesbstewart/csvq/lib/json"
+	"github.com/jamesbstewart/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/value"
 
 	"github.com/mithrandie/go-text"
 	"github.com/mithrandie/go-text/color"

@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/mithrandie/csvq/lib/option"
-	"github.com/mithrandie/csvq/lib/query"
+	"github.com/jamesbstewart/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/query"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/mithrandie/readline-csvq"

@@ -3,7 +3,7 @@ package query
 import (
 	"strings"
 
-	"github.com/mithrandie/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/parser"
 )
 
 type AliasMap map[string]string

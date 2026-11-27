@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mithrandie/csvq/lib/option"
-	"github.com/mithrandie/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/parser"
 
 	"github.com/mithrandie/go-text"
 )

@@ -8,9 +8,9 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/mithrandie/csvq/lib/file"
-	"github.com/mithrandie/csvq/lib/option"
-	"github.com/mithrandie/csvq/lib/query"
+	"github.com/jamesbstewart/csvq/lib/file"
+	"github.com/jamesbstewart/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/query"
 
 	"github.com/mitchellh/go-homedir"
 )

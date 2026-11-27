@@ -9,12 +9,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mithrandie/csvq/lib/doc"
-	"github.com/mithrandie/csvq/lib/file"
-	"github.com/mithrandie/csvq/lib/option"
-	"github.com/mithrandie/csvq/lib/parser"
-	"github.com/mithrandie/csvq/lib/syntax"
-	"github.com/mithrandie/csvq/lib/value"
+	"github.com/jamesbstewart/csvq/lib/doc"
+	"github.com/jamesbstewart/csvq/lib/file"
+	"github.com/jamesbstewart/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/syntax"
+	"github.com/jamesbstewart/csvq/lib/value"
 
 	"github.com/mithrandie/go-text"
 	"github.com/mithrandie/go-text/color"

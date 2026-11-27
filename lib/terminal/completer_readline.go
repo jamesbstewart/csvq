@@ -9,10 +9,10 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/mithrandie/csvq/lib/constant"
-	"github.com/mithrandie/csvq/lib/option"
-	"github.com/mithrandie/csvq/lib/parser"
-	"github.com/mithrandie/csvq/lib/query"
+	"github.com/jamesbstewart/csvq/lib/constant"
+	"github.com/jamesbstewart/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/query"
 
 	"github.com/mithrandie/go-text"
 	"github.com/mithrandie/readline-csvq"

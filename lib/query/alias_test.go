@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/mithrandie/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/parser"
 )
 
 var aliasMapAddTests = []struct {

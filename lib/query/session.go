@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mithrandie/csvq/lib/file"
-	"github.com/mithrandie/csvq/lib/option"
-	"github.com/mithrandie/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/file"
+	"github.com/jamesbstewart/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/parser"
 
 	"golang.org/x/crypto/ssh/terminal"
 )

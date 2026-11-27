@@ -5,10 +5,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mithrandie/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/option"
 
-	"github.com/mithrandie/csvq/lib/json"
-	"github.com/mithrandie/csvq/lib/value"
+	"github.com/jamesbstewart/csvq/lib/json"
+	"github.com/jamesbstewart/csvq/lib/value"
 	txjson "github.com/mithrandie/go-text/json"
 
 	"github.com/mithrandie/ternary"

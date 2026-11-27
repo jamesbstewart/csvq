@@ -5,7 +5,7 @@ import (
 	"errors"
 	"unicode"
 
-	"github.com/mithrandie/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/parser"
 )
 
 type ArgumentScanner struct {

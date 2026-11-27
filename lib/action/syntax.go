@@ -3,8 +3,8 @@ package action
 import (
 	"context"
 
-	"github.com/mithrandie/csvq/lib/parser"
-	"github.com/mithrandie/csvq/lib/query"
+	"github.com/jamesbstewart/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/query"
 )
 
 func Syntax(ctx context.Context, proc *query.Processor, words []string) error {
