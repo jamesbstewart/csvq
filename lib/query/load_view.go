@@ -1205,107 +1205,92 @@ func loadViewFromLTSVFile(ctx context.Context, flags *option.Flags, fp *file.Rea
 }
 
 func readRecordSet(ctx context.Context, reader RecordReader, fileSize int64) (RecordSet, error) {
-	var err error
+	type positionedRow struct {
+		columns []text.RawText
+		offset  int
+	}
+
 	recordSet := make(RecordSet, 0, fileLoadingPreparedRecordSetCap)
-	rowch := make(chan []text.RawText, fileLoadingBuffer)
-	panicCh := make(chan bool, 1)
-	pos := 0
+	rows := make(chan positionedRow, fileLoadingBuffer)
+	buildDone := make(chan struct{})
+	var readErr, buildErr error
+	var wg sync.WaitGroup
 
-	wg := sync.WaitGroup{}
-
-	wg.Add(1)
+	wg.Add(2)
 	go func() {
 		defer func() {
-			if err == nil {
-				if panicReport := recover(); panicReport != nil {
-					err = NewFatalError(panicReport)
-				}
+			if panicReport := recover(); panicReport != nil {
+				buildErr = NewFatalError(panicReport)
 			}
-			panicCh <- true
+			close(buildDone)
 			wg.Done()
 		}()
 
-		for {
-			row, ok := <-rowch
-			if !ok {
-				break
-			}
-
-			record := make(Record, len(row))
-			for i, v := range row {
-				if v == nil {
+		for row := range rows {
+			record := make(Record, len(row.columns))
+			for i, column := range row.columns {
+				if column == nil {
 					record[i] = NewCell(value.NewNull())
 				} else {
-					record[i] = NewCell(value.NewString(string(v)))
+					record[i] = NewCell(value.NewString(string(column)))
 				}
 			}
 
-			if 0 < fileSize && 0 < pos && len(recordSet) == fileLoadingPreparedRecordSetCap && int64(pos) < fileSize {
-				l := int((float64(fileSize) / float64(pos)) * fileLoadingPreparedRecordSetCap * 1.2)
-				newSet := make(RecordSet, fileLoadingPreparedRecordSetCap, l)
-				copy(newSet, recordSet)
-				recordSet = newSet
+			if row.offset > 0 && len(recordSet) == fileLoadingPreparedRecordSetCap && int64(row.offset) < fileSize {
+				estimatedLength := int((float64(fileSize) / float64(row.offset)) * fileLoadingPreparedRecordSetCap * 1.2)
+				grown := make(RecordSet, len(recordSet), estimatedLength)
+				copy(grown, recordSet)
+				recordSet = grown
 			}
 
 			recordSet = append(recordSet, record)
 		}
 	}()
 
-	wg.Add(1)
 	go func() {
-		panicOccurred := false
-
 		defer func() {
-			if err == nil && !panicOccurred {
-				if panicReport := recover(); panicReport != nil {
-					err = NewFatalError(panicReport)
-				}
+			if panicReport := recover(); panicReport != nil {
+				readErr = NewFatalError(panicReport)
 			}
-			close(rowch)
+			close(rows)
 			wg.Done()
 		}()
 
-		i := 0
-
-		for {
+		offset := 0
+		for i := 0; ; i++ {
 			if i&15 == 0 && ctx.Err() != nil {
-				err = ConvertContextError(ctx.Err())
-				break
+				readErr = ConvertContextError(ctx.Err())
+				return
 			}
 
-			row, e := reader.Read()
-			if e == io.EOF {
-				break
+			columns, err := reader.Read()
+			if err == io.EOF {
+				return
 			}
-			if e != nil {
-				err = e
-				break
+			if err != nil {
+				readErr = err
+				return
 			}
 
-			if 0 < fileSize && i < fileLoadingPreparedRecordSetCap {
-				for j := range row {
-					pos += len(row[j])
+			if fileSize > 0 && i < fileLoadingPreparedRecordSetCap {
+				for _, column := range columns {
+					offset += len(column)
 				}
 			}
 
 			select {
-			case _ = <-panicCh:
-				panicOccurred = true
-			case rowch <- row:
-				// Row data sent.
+			case <-buildDone:
+				return
+			case rows <- positionedRow{columns: columns, offset: offset}:
 			}
-
-			if panicOccurred {
-				break
-			}
-			i++
 		}
 	}()
 
 	wg.Wait()
-	close(panicCh)
-
-	return recordSet, err
+	if buildErr != nil {
+		return recordSet, buildErr
+	}
+	return recordSet, readErr
 }
 
 func loadViewFromJsonFile(fp *file.Reader, fileInfo *FileInfo, expr parser.QueryExpression) (*View, error) {
