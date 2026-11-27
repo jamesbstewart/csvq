@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 
-	"github.com/mithrandie/csvq/lib/parser"
-	"github.com/mithrandie/csvq/lib/query"
+	"github.com/jamesbstewart/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/query"
 )
 
 func ShowFields(ctx context.Context, proc *query.Processor, filename string) error {

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/go-homedir"
-	"github.com/mithrandie/csvq/lib/file"
+	"github.com/jamesbstewart/csvq/lib/file"
 	"github.com/mithrandie/go-text/color"
 )
 

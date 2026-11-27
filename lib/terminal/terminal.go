@@ -7,11 +7,11 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/mithrandie/csvq/lib/excmd"
-	"github.com/mithrandie/csvq/lib/option"
-	"github.com/mithrandie/csvq/lib/parser"
-	"github.com/mithrandie/csvq/lib/query"
-	"github.com/mithrandie/csvq/lib/value"
+	"github.com/jamesbstewart/csvq/lib/excmd"
+	"github.com/jamesbstewart/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/query"
+	"github.com/jamesbstewart/csvq/lib/value"
 )
 
 const (

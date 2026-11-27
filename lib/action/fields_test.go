@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mithrandie/csvq/lib/file"
+	"github.com/jamesbstewart/csvq/lib/file"
 
-	"github.com/mithrandie/csvq/lib/query"
+	"github.com/jamesbstewart/csvq/lib/query"
 )
 
 var showFieldsTests = []struct {

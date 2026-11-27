@@ -8,12 +8,12 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/mithrandie/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/option"
 
 	"github.com/mithrandie/go-text"
 
-	"github.com/mithrandie/csvq/lib/parser"
-	"github.com/mithrandie/csvq/lib/value"
+	"github.com/jamesbstewart/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/value"
 )
 
 func TestTransaction_Commit(t *testing.T) {

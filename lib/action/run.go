@@ -10,11 +10,11 @@ import (
 	"time"
 	"unicode"
 
-	csvqfile "github.com/mithrandie/csvq/lib/file"
-	"github.com/mithrandie/csvq/lib/option"
-	"github.com/mithrandie/csvq/lib/parser"
-	"github.com/mithrandie/csvq/lib/query"
-	"github.com/mithrandie/csvq/lib/terminal"
+	csvqfile "github.com/jamesbstewart/csvq/lib/file"
+	"github.com/jamesbstewart/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/parser"
+	"github.com/jamesbstewart/csvq/lib/query"
+	"github.com/jamesbstewart/csvq/lib/terminal"
 
 	"github.com/mithrandie/go-file/v2"
 )

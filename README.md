@@ -2,6 +2,8 @@
 
 SQL-like query language for csv
 
+This fork starts from [csvq v1.18.1](https://github.com/mithrandie/csvq/releases/tag/v1.18.1) and maintains the Go library and SQL driver used by Toolbox.
+
 [![Test](https://github.com/mithrandie/csvq/actions/workflows/test.yml/badge.svg)](https://github.com/mithrandie/csvq/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/mithrandie/csvq/branch/master/graph/badge.svg)](https://codecov.io/gh/mithrandie/csvq)
 [![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey.svg)](https://opensource.org/licenses/MIT)
@@ -74,7 +76,7 @@ Go 1.18 or later (cf. [Getting Started - The Go Programming Language](https://go
 
 #### Build command
 
-```$ go install github.com/mithrandie/csvq```
+```$ go install github.com/jamesbstewart/csvq@latest```
 
 ### Install using package manager
 
@@ -149,7 +151,7 @@ More details >> [https://mithrandie.github.io/csvq](https://mithrandie.github.io
 
 ## Execute csvq statements in Go
 
-[csvq-driver](https://github.com/mithrandie/csvq-driver)
+Import `github.com/jamesbstewart/csvq/lib/driver` and pass its `DriverName` constant to `sql.Open`. The driver uses this fork’s query engine and registers under `csvq-jamesbstewart`. It incorporates [csvq-driver v1.7.0](https://github.com/mithrandie/csvq-driver/tree/v1.7.0) under its [original MIT license](lib/driver/LICENSE).
 
 ## Example of cooperation with other applications
 

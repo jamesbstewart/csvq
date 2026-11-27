@@ -7,8 +7,8 @@ import (
 
 	"github.com/mithrandie/ternary"
 
-	"github.com/mithrandie/csvq/lib/option"
-	"github.com/mithrandie/csvq/lib/value"
+	"github.com/jamesbstewart/csvq/lib/option"
+	"github.com/jamesbstewart/csvq/lib/value"
 )
 
 func TestBaseExpr_Line(t *testing.T) {

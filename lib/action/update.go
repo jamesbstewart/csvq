@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mithrandie/csvq/lib/query"
+	"github.com/jamesbstewart/csvq/lib/query"
 )
 
 const githubApiLatestReleaseURL = "https://api.github.com/repos/mithrandie/csvq/releases/latest"
