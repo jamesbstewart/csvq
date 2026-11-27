@@ -1335,7 +1335,6 @@ func loadViewFromJsonFile(fp *file.Reader, fileInfo *FileInfo, expr parser.Query
 }
 
 func loadViewFromJsonLinesFile(ctx context.Context, flags *option.Flags, fp *file.Reader, fileInfo *FileInfo, expr parser.QueryExpression) (*View, error) {
-	var err error
 	headerList := make([]string, 0, 32)
 	headerMap := make(map[string]bool, 32)
 	objectList := make([]txjson.Object, 0, fileLoadingPreparedRecordSetCap)
@@ -1347,102 +1346,93 @@ func loadViewFromJsonLinesFile(ctx context.Context, flags *option.Flags, fp *fil
 		return nil, NewLoadJsonError(expr, err.Error())
 	}
 
-	rowch := make(chan txjson.Object, fileLoadingBuffer)
-	panicCh := make(chan bool, 1)
-	pos := 0
+	type positionedObject struct {
+		object txjson.Object
+		offset int
+	}
+	rows := make(chan positionedObject, fileLoadingBuffer)
+	buildDone := make(chan struct{})
+	var readErr, buildErr error
 
 	reader := jsonl.NewReader(fp)
 	reader.SetUseInteger(false)
 
-	wg := sync.WaitGroup{}
-
-	wg.Add(1)
+	var wg sync.WaitGroup
+	wg.Add(2)
 	go func() {
 		defer func() {
-			if err == nil {
-				if panicReport := recover(); panicReport != nil {
-					err = NewFatalError(panicReport)
-				}
+			if panicReport := recover(); panicReport != nil {
+				buildErr = NewFatalError(panicReport)
 			}
-			panicCh <- true
+			close(buildDone)
 			wg.Done()
 		}()
 
-		for {
-			row, ok := <-rowch
-			if !ok {
-				break
-			}
-
-			for _, v := range row.Keys() {
-				if _, ok := headerMap[v]; !ok {
-					headerMap[v] = true
-					headerList = append(headerList, v)
+		for row := range rows {
+			for _, key := range row.object.Keys() {
+				if !headerMap[key] {
+					headerMap[key] = true
+					headerList = append(headerList, key)
 				}
 			}
 
-			if 0 < fileSize && 0 < pos && len(objectList) == fileLoadingPreparedRecordSetCap && int64(pos) < fileSize {
-				l := int((float64(fileSize) / float64(pos)) * fileLoadingPreparedRecordSetCap * 1.2)
-				newSet := make([]txjson.Object, fileLoadingPreparedRecordSetCap, l)
-				copy(newSet, objectList)
-				objectList = newSet
+			if row.offset > 0 && len(objectList) == fileLoadingPreparedRecordSetCap && int64(row.offset) < fileSize {
+				estimatedLength := int((float64(fileSize) / float64(row.offset)) * fileLoadingPreparedRecordSetCap * 1.2)
+				grown := make([]txjson.Object, len(objectList), estimatedLength)
+				copy(grown, objectList)
+				objectList = grown
 			}
 
-			objectList = append(objectList, row)
+			objectList = append(objectList, row.object)
 		}
 	}()
 
-	wg.Add(1)
 	go func() {
-		panicOccurred := false
-
 		defer func() {
-			if err == nil && !panicOccurred {
-				if panicReport := recover(); panicReport != nil {
-					err = NewFatalError(panicReport)
-				}
+			if panicReport := recover(); panicReport != nil {
+				readErr = NewFatalError(panicReport)
 			}
-			close(rowch)
+			close(rows)
 			wg.Done()
 		}()
 
-		i := 0
-		for {
+		offset := 0
+		for i := 0; ; i++ {
 			if i&15 == 0 && ctx.Err() != nil {
-				err = ConvertContextError(ctx.Err())
-				break
+				readErr = ConvertContextError(ctx.Err())
+				return
 			}
 
-			row, et, e := reader.Read()
-			if e == io.EOF {
-				break
+			row, et, err := reader.Read()
+			if err == io.EOF {
+				return
 			}
-			if e != nil {
-				err = e
-				break
+			if err != nil {
+				readErr = err
+				return
 			}
 
 			rowObj, ok := row.(txjson.Object)
 			if !ok {
-				err = NewJsonLinesStructureError(expr)
-				break
+				readErr = NewJsonLinesStructureError(expr)
+				return
 			}
 
 			if jsonQuery != nil {
-				jstruct, e := json.Extract(jsonQuery, rowObj)
-				if e != nil {
-					err = e
-					break
+				jstruct, err := json.Extract(jsonQuery, rowObj)
+				if err != nil {
+					readErr = err
+					return
 				}
 				jarray, ok := jstruct.(txjson.Array)
 				if !ok || len(jarray) < 1 {
-					err = NewJsonLinesStructureError(expr)
-					break
+					readErr = NewJsonLinesStructureError(expr)
+					return
 				}
 				rowObj, ok = jarray[0].(txjson.Object)
 				if !ok {
-					err = NewJsonLinesStructureError(expr)
-					break
+					readErr = NewJsonLinesStructureError(expr)
+					return
 				}
 			}
 
@@ -1450,34 +1440,29 @@ func loadViewFromJsonLinesFile(ctx context.Context, flags *option.Flags, fp *fil
 				escapeType = et
 			}
 
-			if 0 < fileSize && i < fileLoadingPreparedRecordSetCap {
-				pos = reader.Pos()
+			if fileSize > 0 && i < fileLoadingPreparedRecordSetCap {
+				offset = reader.Pos()
 			}
 
 			select {
-			case _ = <-panicCh:
-				panicOccurred = true
-			case rowch <- rowObj:
-				// Row data sent.
+			case <-buildDone:
+				return
+			case rows <- positionedObject{object: rowObj, offset: offset}:
 			}
-
-			if panicOccurred {
-				break
-			}
-			i++
 		}
 	}()
 
 	wg.Wait()
-	close(panicCh)
-
-	if err != nil {
-		return nil, err
+	if buildErr != nil {
+		return nil, buildErr
+	}
+	if readErr != nil {
+		return nil, readErr
 	}
 
 	recordSet := make(RecordSet, len(objectList))
 
-	if err = NewGoroutineTaskManager(len(objectList), -1, flags.CPU).Run(ctx, func(index int) error {
+	if err := NewGoroutineTaskManager(len(objectList), -1, flags.CPU).Run(ctx, func(index int) error {
 		values := make([]value.Primary, len(headerList))
 
 		for i, v := range headerList {
