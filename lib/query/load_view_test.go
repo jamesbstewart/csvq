@@ -15,8 +15,34 @@ import (
 	"github.com/mithrandie/csvq/lib/value"
 
 	"github.com/mithrandie/go-text"
+	"github.com/mithrandie/go-text/csv"
 	"github.com/mithrandie/go-text/json"
 )
+
+func TestReadRecordSetBeyondInitialCapacity(t *testing.T) {
+	const count = fileLoadingPreparedRecordSetCap * 4
+	var input strings.Builder
+	for index := 0; index < count; index++ {
+		fmt.Fprintf(&input, "%d,payload\n", index)
+	}
+	reader, err := csv.NewReader(strings.NewReader(input.String()), text.UTF8)
+	if err != nil {
+		t.Fatal(err)
+	}
+	records, err := readRecordSet(context.Background(), reader, int64(input.Len()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(records) != count {
+		t.Fatalf("read %d records, want %d", len(records), count)
+	}
+	for index, record := range records {
+		want := NewRecord([]value.Primary{value.NewString(fmt.Sprint(index)), value.NewString("payload")})
+		if !reflect.DeepEqual(record, want) {
+			t.Fatalf("record %d = %v, want %v", index, record, want)
+		}
+	}
+}
 
 var loadViewTests = []struct {
 	Name               string
